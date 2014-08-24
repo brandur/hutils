@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+
+require "optparse"
+
+require_relative "../lib/hutils"
+require_relative "../lib/hutils/ltap"
+
+conf = Hutils::Ltap::Conf.new
+conf.load
+
+opts = OptionParser.new do |opts|
+  opts.banner = "Usage: ltap [options] <query>"
+  opts.on("-h", "--help", "Show this help string") { |h|
+    if h
+      puts(opts.help)
+      exit(0)
+    end
+  }
+  opts.on("-k", "--key [KEY]", "Service API key") { |t| conf.timeout = t }
+  opts.on("-p", "--profile [PROFILE]", "Conf profile") { |p| conf.profile = p }
+  opts.on("-t", "--timeout [TIMEOUT]", "Job timeout") { |t| conf.timeout = t }
+  opts.on("-y", "--type [TYPE]", "Service type") { |t| conf.timeout = t }
+  opts.on("-u", "--url [URL]", "Service API URL") { |u| conf.url = u }
+  opts.on("-v", "--verbose", "Verbose mode") { |v| conf.verbose = v }
+end
+opts.parse!
+
+# load a profile from ~/.ltap if one was specified
+if conf.profile
+  conf.load_section(conf.profile)
+end
+
+unless conf.type
+  abort("Must set a service type; use ~/.ltap or --type")
+end
+
+unless ARGV.first
+  abort(opts.help)
+end
+
+drainer = case conf.type
+when "papertrail"
+  Hutils::Ltap::PaperTrailDrainer
+when "splunk"
+  Hutils::Ltap::SplunkDrainer
+else
+  abort("Unknown type: #{conf.type}")
+end
+
+drainer = drainer.new(
+  key: conf.key,
+  query: ARGV.first,
+  timeout: conf.timeout,
+  url: conf.url,
+  verbose: conf.verbose
+)
+
+thread = Thread.start do
+  $stdout.puts drainer.run
+end
+
+# cancel a running job on a SIGINT because Splunk search slots are apparently a
+# very valuable limited resource
+trap('SIGINT', 'SIGTERM') do
+  drainer.cancel_job
+  thread.terminate
+  abort("Caught deadly signal")
+end
+
+thread.join

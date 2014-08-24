@@ -1,0 +1,69 @@
+#!/usr/bin/env ruby
+
+require "inifile"
+require "optparse"
+require_relative "../lib/hutils"
+
+colors = $stdout.tty?
+compact = false
+highlights = %w(endpoint path route_signature user user_id)
+ignore = %w()
+interactive = false
+
+ini = IniFile.load(ENV["HOME"] + "/.lviz")
+if g = ini && ini["global"]
+  colors = g["colors"] if g["colors"]
+  compact = g["compact"] if g["compact"]
+  highlights = g["highlights"].split(",") if g["highlights"]
+  ignore = g["ignore"].split(",") if g["ignore"]
+end
+
+opts = OptionParser.new do |opts|
+  opts.banner = "Usage: lviz [options] <file> ..."
+  opts.on("--compact", "Compact display") { |c| compact = c }
+  opts.on("-h", "--help", "Show this help string") { |h|
+    if h
+      puts(opts.help)
+      exit(0)
+    end
+  }
+  opts.on("--highlights", "Keys to highlight (comma separated)") { |h|
+    highlights = h.split(",") rescue []
+  }
+  opts.on("--ignore", "Keys to ignore (comma separated)") { |i|
+    ignore = i.split(",") rescue []
+  }
+  opts.on("-i", "--interactive", "Interactive mode") { |i| interactive = i }
+  opts.on("--no-color", "Disable colors") { |c| colors = c }
+end
+opts.parse!
+
+# ARGF will read from stdin if available, and otherwise fall back to files
+# named as parameters (similar to the behavior of `cat`)
+lines = Hutils::Parser.new(ARGF.read).parse
+Hutils::Stripper.new(lines, ignore).run
+root = Hutils::TreeBuilder.new(lines).build
+
+if interactive
+  require_relative "../lib/hutils/curses_visualizer"
+  require_relative "../lib/hutils/node_navigator"
+
+  unless $stdin.tty?
+    abort("Can't start in interactive mode if STDIN isn't a TTY")
+  end
+
+  Hutils::CursesVisualizer.new(
+    colors: colors,
+    compact: compact,
+    highlights: highlights,
+    root: root
+  ).run
+else
+  Hutils::TextVisualizer.new(
+    colors: colors,
+    compact: compact,
+    highlights: highlights,
+    out: $stdout,
+    root: root
+  ).display
+end

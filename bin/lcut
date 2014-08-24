@@ -1,0 +1,43 @@
+#!/usr/bin/env ruby
+
+require "optparse"
+
+require_relative "../lib/hutils"
+
+allow_empty = false
+delimiter = "\t"
+file = nil
+verbose = false
+
+opts = OptionParser.new do |opts|
+  opts.banner = "Usage: lsel [options] <fields>"
+  opts.on("-d", "--delimiter [DELIMITER]", "Delimiter separating output") { |d|
+    delimiter = d
+  }
+  opts.on("-e", "--allow-empty", "Output empty lines") { |e| allow_empty = e }
+  opts.on("-f", "--file [FILE]", "File to read") { |f| file = f }
+  opts.on("-h", "--help", "Show this help string") { |h|
+    if h
+      puts(opts.help)
+      exit(0)
+    end
+  }
+  opts.on("-v", "--verbose", "Verbose mode") { |v| verbose = v }
+end
+opts.parse!
+
+if !file && $stdin.tty? || !ARGV.first
+  abort(opts.help)
+end
+
+file = file ? File.open(file) : $stdin
+file.each_line do |line|
+  messages = Hutils::Parser.new(line).parse
+  messages.each do |message|
+    values = ARGV.map { |f| message[f] ? message[f] : nil }
+    if allow_empty || !values.all? { |v| v.nil? }
+      puts values.join(delimiter)
+    end
+  end
+end
+file.close
