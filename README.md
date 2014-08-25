@@ -23,6 +23,21 @@ GET     /vendor/resources/6007506
 GET     /vendor/resources/7117492
 ```
 
+### lfmt
+
+`lfmt` prettifies logfmt lines as they emerge from a stream, and highlights their key sections.
+
+(Note that the example below doesn't demonstrate color, which is one of the more important features of `logfmt`.)
+
+```
+$ ltap 'instrumentation app=api earliest=-1m at=finish' | lfmt
+api.108081@heroku.com app: api at: finish component: manager_apiauthorized elapsed: 0.008 instance_name: api.108081 instrumentation length: 339 method: GET path: /providers/users/search request_id: ef82825d-4c10-41f3-89ed-6bf805aa4513 status: 200 user: heroku-postgresql@addons.heroku.com user_id: 105750 version: 1
+api.136540@heroku.com app: api at: finish elapsed: 0.001 instance_name: api.136540 instrumentation method: GET path: /vendor/resources/6307854 request_id: 055df716-fc62-4554-b976-e2fe2472e107 status: 200 user: 3paccounts@dwnldmedia.com user_id: 97546 version: 2
+api.93579@heroku.com app: api at: finish elapsed: 0.000 instance_name: api.93579 instrumentation method: GET path: /health request_id: 6af07088-82af-4f50-87c1-8b5d248807f0 status: 200 user: heroku-postgresql@addons.heroku.com user_id: 105750 version: 1
+api.108081@heroku.com app: api at: finish elapsed: 0.174 instance_name: api.108081 instrumentation method: GET path: /vendor/resources/6007506 request_id: ef82825d-4c10-41f3-89ed-6bf805aa4513 status: 200 user: heroku-postgresql@addons.heroku.com user_id: 105750 version: 1
+api.108081@heroku.com app: api at: finish elapsed: 0.162 instance_name: api.108081 instrumentation method: GET path: /vendor/resources/7117492 request_id: 7480424d-5a8a-488a-a32a-55812fde5f4b status: 200 user: heroku-postgresql@addons.heroku.com user_id: 105750 version: 1
+```
+
 ### ltap
 
 `ltap` accesses messages from popular log providers in a consistent way so that it can easily be parsed by other utilities that operate on logfmt traces. Currently supported providers are Papertrail and Splunk.
