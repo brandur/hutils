@@ -24,13 +24,15 @@ opts = OptionParser.new do |opts|
 end
 opts.parse!
 
+line_visualizer = Hutils::TextVisualizer::LineVisualizer.new(
+  colors: colors,
+  compact: true,
+  highlights: highlights,
+  out: $stdout)
+
 ARGF.each_line do |line|
   messages = Hutils::Parser.new(line).parse
   messages.each do |message|
-    Hutils::TextVisualizer.display_message(message,
-      colors: colors,
-      compact: true,
-      highlights: highlights,
-      out: $stdout)
+    line_visualizer.display(message)
   end
 end
