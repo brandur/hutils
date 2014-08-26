@@ -34,7 +34,7 @@ opts = OptionParser.new do |opts|
     ignore = i.split(",") rescue []
   }
   opts.on("-i", "--interactive", "Interactive mode") { |i| interactive = i }
-  opts.on("--no-color", "Disable colors") { |c| colors = c }
+  opts.on("--no-color", "Disable colors") { |c| colors = false }
 end
 opts.parse!
 
