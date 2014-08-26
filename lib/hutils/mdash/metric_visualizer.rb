@@ -2,7 +2,8 @@ require "curses"
 
 module Hutils::Mdash
   class MetricVisualizer
-    def initialize(tracker:)
+    def initialize(colors:, tracker:)
+      @colors = colors
       @tracker = tracker
     end
 
@@ -13,6 +14,7 @@ module Hutils::Mdash
 
       Curses.start_color
       Curses.use_default_colors
+      Curses.init_pair(COLOR_NAME, Curses::COLOR_GREEN, -1)
 
       Curses.init_screen
 
@@ -24,6 +26,16 @@ module Hutils::Mdash
 
     private
 
+    COLOR_NAME = 1
+
+    def color(key, &block)
+      if @colors
+        Curses.attron(Curses::color_pair(key) | Curses::A_NORMAL) { yield }
+      else
+        yield
+      end
+    end
+
     def paint
       Curses.clear
 
@@ -33,7 +45,7 @@ module Hutils::Mdash
         break if n >= Curses.lines
 
         Curses.setpos(n, 0)
-        Curses.addstr(name)
+        color(COLOR_NAME) { Curses.addstr(name) }
         Curses.addstr("\t")
         Curses.addstr("(#{metric.type})")
         Curses.addstr("\t")

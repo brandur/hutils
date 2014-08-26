@@ -7,9 +7,26 @@ require_relative "../lib/hutils/mdash"
 
 Thread.abort_on_exception = true
 
-tracker = Hutils::Mdash::MetricTracker.new
+colors = $stdout.tty?
 
-visualizer = Hutils::Mdash::MetricVisualizer.new(tracker: tracker)
+opts = OptionParser.new do |opts|
+  opts.banner = "Usage: mdash [options] <file> ..."
+  opts.on("-h", "--help", "Show this help string") { |h|
+    if h
+      puts(opts.help)
+      exit(0)
+    end
+  }
+  opts.on("--no-color", "Disable colors") { |c| colors = false }
+end
+opts.parse!
+
+tracker = Hutils::Mdash::MetricTracker.new
+visualizer = Hutils::Mdash::MetricVisualizer.new(
+  colors: colors,
+  tracker: tracker
+)
+
 Thread.start do
   ARGF.each_line do |line|
     messages = Hutils::Parser.new(line).parse
