@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+
+require "optparse"
+
+require_relative "../lib/hutils"
+require_relative "../lib/hutils/mdash"
+
+Thread.abort_on_exception = true
+
+tracker = Hutils::Mdash::MetricTracker.new
+
+visualizer = Hutils::Mdash::MetricVisualizer.new(tracker: tracker)
+Thread.start do
+  ARGF.each_line do |line|
+    messages = Hutils::Parser.new(line).parse
+    messages.each do |message|
+      tracker.process(message)
+    end
+  end
+  tracker.eof = true
+end
+
+visualizer.run
