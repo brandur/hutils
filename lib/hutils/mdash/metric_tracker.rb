@@ -47,7 +47,7 @@ module Hutils::Mdash
       metric = @metrics[name] ||= Metric.new(type: "measure")
       metric.num_seen += 1
       metric.unit = unit
-      metric.value = value
+      metric.value = value.to_f
     end
 
     def parse(k, v)
@@ -63,7 +63,7 @@ module Hutils::Mdash
       metric = @metrics[name] ||= Metric.new(type: "sample")
       metric.num_seen += 1
       metric.unit = unit
-      metric.value = value
+      metric.value = value.to_f
     end
   end
 end

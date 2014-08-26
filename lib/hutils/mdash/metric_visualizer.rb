@@ -54,8 +54,17 @@ module Hutils::Mdash
         Curses.setpos(n, 60)
         color(COLOR_TYPE) { Curses.addstr("(#{metric.type})") }
 
-        Curses.setpos(n, 70)
-        Curses.addstr(metric.value.to_s)
+        Curses.setpos(n, 75)
+        if metric.type == "count"
+          Curses.addstr(metric.value.to_i.to_s)
+        elsif metric.type == "measure"
+          Curses.addstr(metric.value.round(1).to_s)
+        elsif metric.type == "sample"
+          Curses.addstr(metric.value.round(1).to_s)
+        end
+
+        Curses.setpos(n, 90)
+        Curses.addstr(metric.unit || "")
       end
 
       if @tracker.eof
