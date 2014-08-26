@@ -15,6 +15,8 @@ module Hutils::Mdash
       Curses.start_color
       Curses.use_default_colors
       Curses.init_pair(COLOR_NAME, Curses::COLOR_GREEN, -1)
+      Curses.init_pair(COLOR_TYPE, Curses::COLOR_BLUE, -1)
+      Curses.init_pair(COLOR_EOF, Curses::COLOR_BLACK, Curses::COLOR_YELLOW)
 
       Curses.init_screen
 
@@ -27,6 +29,8 @@ module Hutils::Mdash
     private
 
     COLOR_NAME = 1
+    COLOR_TYPE = 2
+    COLOR_EOF = 3
 
     def color(key, &block)
       if @colors
@@ -46,10 +50,17 @@ module Hutils::Mdash
 
         Curses.setpos(n, 0)
         color(COLOR_NAME) { Curses.addstr(name) }
-        Curses.addstr("\t")
-        Curses.addstr("(#{metric.type})")
-        Curses.addstr("\t")
+
+        Curses.setpos(n, 60)
+        color(COLOR_TYPE) { Curses.addstr("(#{metric.type})") }
+
+        Curses.setpos(n, 70)
         Curses.addstr(metric.value.to_s)
+      end
+
+      if @tracker.eof
+        Curses.setpos(Curses.lines - 1, Curses.cols - 5)
+        color(COLOR_EOF) { Curses.addstr("[EOF]") }
       end
 
       Curses.refresh
