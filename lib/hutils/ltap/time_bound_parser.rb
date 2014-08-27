@@ -12,21 +12,21 @@ module Hutils::Ltap
 
     def to_date(num, unit, from: from)
       unit_time = case unit
-      when "s"
+      when "s", "sec", "secs", "second", "seconds"
         1
-      when "m"
+      when "m", "min", "minute", "minutes"
         60
-      when "h"
+      when "h", "hr", "hrs", "hour", "hours"
         60 * 60
-      when "d"
+      when "d", "day", "days"
         60 * 60 * 24
-      when "w"
+      when "w", "week", "weeks"
         60 * 60 * 24 * 7
-      when "mon"
+      when "mon", "month", "months"
         60 * 60 * 24 * 7 * 30
-      when "q"
+      when "q", "qtr", "qtrs", "quarter", "quarters"
         60 * 60 * 24 * 7 * 30 * 3
-      when "y"
+      when "y", "yr", "yrs", "year", "years"
         60 * 60 * 24 * 7 * 30 * 365
       end
       from - num.to_f * unit_time
