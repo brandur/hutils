@@ -16,6 +16,9 @@ opts = OptionParser.new do |opts|
       exit(0)
     end
   }
+  opts.on("-e", "--earliest [TIME]", "Bound for earliest message") { |e|
+    conf.earliest = e
+  }
   opts.on("-k", "--key [KEY]", "Service API key") { |t| conf.timeout = t }
   opts.on("-p", "--profile [PROFILE]", "Conf profile") { |p| conf.profile = p }
   opts.on("-t", "--timeout [TIMEOUT]", "Job timeout") { |t| conf.timeout = t }
@@ -48,6 +51,7 @@ else
 end
 
 drainer = drainer.new(
+  earliest: conf.earliest,
   key: conf.key,
   query: ARGV.first,
   timeout: conf.timeout,

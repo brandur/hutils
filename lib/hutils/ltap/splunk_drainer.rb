@@ -5,7 +5,8 @@ require "uri"
 
 module Hutils::Ltap
   class SplunkDrainer
-    def initialize(key:, timeout:, query:, url:, verbose:)
+    def initialize(earliest:, key:, timeout:, query:, url:, verbose:)
+      @earliest = earliest
       @timeout = timeout
       @query = query
       @verbose = verbose
@@ -51,6 +52,7 @@ module Hutils::Ltap
         path: "/servicesNS/#{@user}/search/search/jobs",
         expects: 201,
         body: URI.encode_www_form({
+          earliest_time: @earliest,
           output_mode: "json",
           search: "search #{query}"
         })

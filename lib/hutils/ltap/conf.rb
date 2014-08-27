@@ -2,6 +2,7 @@ require "inifile"
 
 module Hutils::Ltap
   class Conf
+    attr_accessor :earliest
     attr_accessor :key
     attr_accessor :profile
     attr_accessor :timeout
@@ -11,6 +12,7 @@ module Hutils::Ltap
 
     def initialize
       @ini = IniFile.load(ENV["HOME"] + "/.ltap")
+      self.earliest = "-24h"
       self.timeout = 60
       self.verbose = false
     end

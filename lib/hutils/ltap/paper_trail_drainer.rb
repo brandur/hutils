@@ -4,7 +4,7 @@ module Hutils::Ltap
   class PaperTrailDrainer
     PAPER_TRAIL_URL = "https://papertrailapp.com"
 
-    def initialize(key:, timeout:, query:, url:, verbose:)
+    def initialize(earliest:, key:, timeout:, query:, url:, verbose:)
       @api = Excon.new(PAPER_TRAIL_URL,
         headers: {
           "X-Papertrail-Token" => key
