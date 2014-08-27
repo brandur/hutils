@@ -1,6 +1,7 @@
 require "csv"
 require "excon"
 require "json"
+require "time"
 require "uri"
 
 module Hutils::Ltap
@@ -25,6 +26,7 @@ module Hutils::Ltap
 
         # finalize the job if we've broken our timeout point
         if (Time.now - start).to_i > @timeout
+          debug("breaking: reached timeout")
           finalize_job
           break
         end
@@ -52,7 +54,7 @@ module Hutils::Ltap
         path: "/servicesNS/#{@user}/search/search/jobs",
         expects: 201,
         body: URI.encode_www_form({
-          earliest_time: @earliest,
+          earliest_time: @earliest.iso8601,
           output_mode: "json",
           search: "search #{query}"
         })

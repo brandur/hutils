@@ -69,6 +69,7 @@ A sample Splunk configuration:
 profile = my_splunk
 
 [my_splunk]
+earliest = -24h
 type = splunk
 url = https://brandur:an-api-key@splunk.example.com:8089
 ```

@@ -41,6 +41,13 @@ unless ARGV.first
   abort(opts.help)
 end
 
+parser = Hutils::Ltap::TimeBoundParser.new
+if !(earliest = parser.parse(conf.earliest, from: Time.now.getutc))
+  $stderr.puts %{Couldn't parse bound "#{conf.earliest}", reverting to default}
+  # duplicated from conf, which is not ideal
+  earliest = Time.now.getutc - 60 * 60 * 24
+end
+
 drainer = case conf.type
 when "papertrail"
   Hutils::Ltap::PaperTrailDrainer
@@ -51,7 +58,7 @@ else
 end
 
 drainer = drainer.new(
-  earliest: conf.earliest,
+  earliest: earliest,
   key: conf.key,
   query: ARGV.first,
   timeout: conf.timeout,

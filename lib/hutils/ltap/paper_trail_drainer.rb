@@ -9,6 +9,7 @@ module Hutils::Ltap
         headers: {
           "X-Papertrail-Token" => key
         })
+      @earliest = earliest
       @query = query
       @timeout = timeout
       @verbose = verbose
@@ -20,12 +21,25 @@ module Hutils::Ltap
       start = Time.now
 
       loop do
-        new_messages, reached_beginning, min_id = fetch_page(min_id)
+        new_messages, reached_beginning, min_id, min_time = fetch_page(min_id)
         messages += new_messages
 
         # break if PaperTrail has indicated that we've reached the beginning of
-        # our results, or if we've approximately hit our timeout
-        if reached_beginning || (Time.now - start).to_i > @timeout
+        # our results
+        if reached_beginning
+          debug("breaking: reached beginning")
+          break
+        end
+
+        # or if we've reached back before our earliest
+        if min_time && min_time < @earliest
+          debug("breaking: before earliest: #{@earliest}")
+          break
+        end
+
+        # or if we've approximately hit our timeout
+        if (Time.now - start).to_i > @timeout
+          debug("breaking: reached timeout")
           break
         end
       end
@@ -65,11 +79,17 @@ module Hutils::Ltap
       end
 
       data = JSON.parse(resp.body)
+      events = data["events"]
       debug("backend_timeout: #{data["backend_timeout"] || false} " +
         "min_id: #{data["min_id"]} " +
         "reached_beginning: #{data["reached_beginning"] || false}")
-      messages = data["events"].map { |e| e["message"].strip }
-      [messages, data["reached_beginning"], data["min_id"]]
+
+      [
+        events.map { |e| e["message"].strip },
+        data["reached_beginning"],
+        data["min_id"],
+        events.last ? Time.parse(events.last["received_at"]) : nil
+      ]
     end
   end
 end
