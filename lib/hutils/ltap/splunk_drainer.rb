@@ -110,6 +110,8 @@ module Hutils::Ltap
         # api-web-1[23399]: - api.108080@heroku.com ...
         map { |l, t| [l.gsub(/^.*: - /, ""), t] }.
         map { |l, t| [l.strip, t] }.
+        # format timestamps consistently (+00:00 --> Z)
+        map { |l, t| [l, Time.parse(t).getutc.iso8601] }.
         map { |l, t| @timestamps ? "#{t}: #{l}" : l }.
         # results come in from newest to oldest; flip that
         reverse

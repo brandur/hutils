@@ -81,7 +81,7 @@ module Hutils
 
     def normalize(line)
       line = line.strip
-      line.gsub(/^[T0-9\-:+.]+( [a-z]+\[[a-z0-9\-_.]+\])?: /, '')
+      line.gsub(/^[TZ0-9\-:+.]+( [a-z]+\[[a-z0-9\-_.]+\])?: /, '')
     end
   end
 

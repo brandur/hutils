@@ -63,7 +63,9 @@ module Hutils::Ltap
     def build_message(event)
       message = event["message"].strip
       if @timestamps
-        message = "#{event["received_at"]}: #{message}"
+        # it's already in ISO8601, but let's make it UTC
+        t = Time.parse(event["received_at"]).getutc.iso8601
+        message = "#{t}: #{message}"
       end
       message
     end
