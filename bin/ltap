@@ -22,6 +22,7 @@ opts = OptionParser.new do |opts|
   opts.on("-k", "--key [KEY]", "Service API key") { |t| conf.timeout = t }
   opts.on("-p", "--profile [PROFILE]", "Conf profile") { |p| conf.profile = p }
   opts.on("-t", "--timeout [TIMEOUT]", "Job timeout") { |t| conf.timeout = t }
+  opts.on("-s", "--timestamps", "Output timestamps") { |t| conf.timestamps = t }
   opts.on("-y", "--type [TYPE]", "Service type") { |t| conf.timeout = t }
   opts.on("-u", "--url [URL]", "Service API URL") { |u| conf.url = u }
   opts.on("-v", "--verbose", "Verbose mode") { |v| conf.verbose = v }
@@ -62,6 +63,7 @@ drainer = drainer.new(
   key: conf.key,
   query: ARGV.first,
   timeout: conf.timeout,
+  timestamps: conf.timestamps,
   url: conf.url,
   verbose: conf.verbose
 )

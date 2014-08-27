@@ -6,10 +6,11 @@ require "uri"
 
 module Hutils::Ltap
   class SplunkDrainer
-    def initialize(earliest:, key:, timeout:, query:, url:, verbose:)
+    def initialize(earliest:, key:, timeout:, query:, timestamps:, url:, verbose:)
       @earliest = earliest
       @timeout = timeout
       @query = query
+      @timestamps = timestamps
       @verbose = verbose
 
       @user = URI.parse(url).user
@@ -99,15 +100,17 @@ module Hutils::Ltap
 
       rows = CSV.parse(resp.body)
       return [] if rows.count < 1
-      field = rows[0].index("_raw") || raise("no _raw field detected in Splunk response")
+      raw_field = rows[0].index("_raw") || raise("no _raw field detected in Splunk response")
+      time_field = rows[0].index("_time") || raise("no _time field detected in Splunk response")
 
       # skip the first line as its used for CSV headers
       rows[1..-1].
-        map { |l| l[field] }.
+        map { |l| [l[raw_field], l[time_field]] }.
         # 2014-08-15T19:01:15.476590+00:00 54.197.117.24 local0.notice
         # api-web-1[23399]: - api.108080@heroku.com ...
-        map { |l| l.gsub(/^.*: - /, "") }.
-        map { |l| l.strip }.
+        map { |l, t| [l.gsub(/^.*: - /, ""), t] }.
+        map { |l, t| [l.strip, t] }.
+        map { |l, t| @timestamps ? "#{t}: #{l}" : l }.
         # results come in from newest to oldest; flip that
         reverse
     end

@@ -4,7 +4,7 @@ module Hutils::Ltap
   class PaperTrailDrainer
     PAPER_TRAIL_URL = "https://papertrailapp.com"
 
-    def initialize(earliest:, key:, timeout:, query:, url:, verbose:)
+    def initialize(earliest:, key:, timeout:, query:, timestamps:, url:, verbose:)
       @api = Excon.new(PAPER_TRAIL_URL,
         headers: {
           "X-Papertrail-Token" => key
@@ -12,6 +12,7 @@ module Hutils::Ltap
       @earliest = earliest
       @query = query
       @timeout = timeout
+      @timestamps = timestamps
       @verbose = verbose
     end
 
@@ -59,6 +60,14 @@ module Hutils::Ltap
     class RateLimited < StandardError
     end
 
+    def build_message(event)
+      message = event["message"].strip
+      if @timestamps
+        message = "#{event["received_at"]}: #{message}"
+      end
+      message
+    end
+
     def debug(str)
       if @verbose
         puts str
@@ -85,7 +94,7 @@ module Hutils::Ltap
         "reached_beginning: #{data["reached_beginning"] || false}")
 
       [
-        events.map { |e| e["message"].strip },
+        events.map { |e| build_message(e) },
         data["reached_beginning"],
         data["min_id"],
         events.last ? Time.parse(events.last["received_at"]) : nil
