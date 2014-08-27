@@ -4,6 +4,7 @@ describe Hutils::Ltap::TimeBoundParser do
   it "parses time bounds" do
     assert_equal (time - 60), parse("-1m")
     assert_equal (time - 60 * 60), parse("-1h")
+    assert_equal (time - 60 * 60 * 24), parse("-24h")
   end
 
   it "parses time bounds without numbers" do

@@ -7,8 +7,8 @@ module Hutils::Ltap
   #      http://docs.splunk.com/Documentation/Splunk/6.1.3/SearchReference/SearchTimeModifiers
   class TimeBoundParser
     def parse(str, from: Time.now.getutc)
-      if str =~ /^([+\-])([0-9]?)([a-z]+)$/
-        to_date($2.empty? ? 1 : $2, $3, from: from)
+      if str =~ /^([+\-])([0-9]+)?([a-z]+)$/
+        to_date($2 || 1, $3, from: from)
       else
         nil
       end
