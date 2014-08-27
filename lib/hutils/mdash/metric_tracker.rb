@@ -13,6 +13,73 @@ module Hutils::Mdash
       end
     end
 
+    class MeasureMetric < Metric
+      attr_accessor :samples_60s
+      attr_accessor :samples_300s
+
+      def initialize
+        super(type: "measure")
+
+        @samples_60s = SampleSet.new(60)
+        @samples_300s = SampleSet.new(300)
+      end
+
+      def value=(v)
+        @value = v
+        @samples_60s.add(v)
+        @samples_60s.prune
+        @samples_300s.add(v)
+        @samples_300s.prune
+      end
+    end
+
+    class Sample
+      attr_accessor :time
+      attr_accessor :value
+
+      def initialize(time, value)
+        @time = time
+        @value = value
+      end
+    end
+
+    class SampleSet
+      def initialize(window)
+        @set = []
+        @window = window
+      end
+
+      def add(value)
+        @set << Sample.new(Time.now, value)
+      end
+
+      def p50
+        values.sort[(@set.count.to_f * 0.50).to_i]
+      end
+
+      def p95
+        values.sort[(@set.count.to_f * 0.95).to_i]
+      end
+
+      def p99
+        values.sort[(@set.count.to_f * 0.99).to_i]
+      end
+
+      def prune
+        bound = Time.now - @window
+        # the internal array is inherently ordered
+        while (s = @set[0]) && s.time < bound
+          @set.shift
+        end
+      end
+
+      private
+
+      def values
+        @set.map { |s| s.value }
+      end
+    end
+
     attr_accessor :eof
     attr_accessor :metrics
 
@@ -44,7 +111,7 @@ module Hutils::Mdash
     end
 
     def measure(name, value, unit)
-      metric = @metrics[name] ||= Metric.new(type: "measure")
+      metric = @metrics[name] ||= MeasureMetric.new
       metric.num_seen += 1
       metric.unit = unit
       metric.value = value.to_f
