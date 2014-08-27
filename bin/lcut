@@ -32,8 +32,8 @@ end
 
 file = file ? File.open(file) : $stdin
 file.each_line do |line|
-  messages = Hutils::Parser.new(line).parse
-  messages.each do |message|
+  events = Hutils::Parser.new(line).parse
+  events.each do |message, _|
     values = ARGV.map { |f| message[f] ? message[f] : nil }
     if allow_empty || !values.all? { |v| v.nil? }
       puts values.join(delimiter)

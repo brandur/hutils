@@ -31,8 +31,8 @@ line_visualizer = Hutils::TextVisualizer::LineVisualizer.new(
   out: $stdout)
 
 ARGF.each_line do |line|
-  messages = Hutils::Parser.new(line).parse
-  messages.each do |message|
-    line_visualizer.display(message)
+  events = Hutils::Parser.new(line).parse
+  events.each do |message, time|
+    line_visualizer.display(message, time: time)
   end
 end

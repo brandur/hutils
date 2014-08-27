@@ -1,3 +1,5 @@
+require "time"
+
 require_relative "hutils/stripper"
 require_relative "hutils/text_visualizer"
 
@@ -64,16 +66,16 @@ module Hutils
     end
 
     def parse
-      lines = @str.split("\n").map { |line| normalize(line) }
-      lines.map! do |line|
-        pairs = line.scan(/(?:['"](?:\\.|[^'"])*['"]|[^'" ])+/).map do |pair|
+      events = @str.split("\n").map { |line| normalize(line) }
+      events.map! do |message, time|
+        pairs = message.scan(/(?:['"](?:\\.|[^'"])*['"]|[^'" ])+/).map do |pair|
           key, value = pair.split("=")
           [key, value].each do |str|
             str.gsub!(/^['"]?(.*?)['"]?$/, '\1') if str
           end
           [key, value || true]
         end
-        Hash[pairs]
+        [Hash[pairs], time]
       end
     end
 
@@ -81,7 +83,8 @@ module Hutils
 
     def normalize(line)
       line = line.strip
-      line.gsub(/^[TZ0-9\-:+.]+( [a-z]+\[[a-z0-9\-_.]+\])?: /, '')
+      line = line.gsub(/^([TZ0-9\-:+.]+)( [a-z]+\[[a-z0-9\-_.]+\])?: /, '')
+      [line, $1 ? Time.parse($1).getutc : nil]
     end
   end
 

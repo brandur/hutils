@@ -1,4 +1,5 @@
 require "term/ansicolor"
+require "time"
 
 module Hutils
   class TextVisualizer
@@ -12,7 +13,10 @@ module Hutils
         @out = out
       end
 
-      def display(message, indent: "")
+      def display(message, indent: "", time: nil)
+        if time
+          @out.print "#{colorize(:cyan, time.iso8601)} "
+        end
         message.to_a.sort_by { |k, v| k }.map { |k, v|
           pair_to_string(k, v)
         }.each_with_index { |display, i|

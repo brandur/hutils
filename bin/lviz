@@ -40,9 +40,10 @@ opts.parse!
 
 # ARGF will read from stdin if available, and otherwise fall back to files
 # named as parameters (similar to the behavior of `cat`)
-lines = Hutils::Parser.new(ARGF.read).parse
-Hutils::Stripper.new(lines, ignore).run
-root = Hutils::TreeBuilder.new(lines).build
+events = Hutils::Parser.new(ARGF.read).parse
+messages = events.map { |e| e[0] }
+Hutils::Stripper.new(messages, ignore).run
+root = Hutils::TreeBuilder.new(messages).build
 
 if interactive
   require_relative "../lib/hutils/curses_visualizer"

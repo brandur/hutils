@@ -3,51 +3,54 @@ require "spec_helper"
 describe Hutils::Parser do
   it "parses basic values" do
     res = run_parser("a=b")
-    assert_equal [{ "a" => "b" }], res
+    assert_equal({ "a" => "b" }, res[0])
   end
 
   it "parses multiple values" do
     res = run_parser("a=b c=d")
-    assert_equal [{ "a" => "b", "c" => "d" }], res
+    assert_equal({ "a" => "b", "c" => "d" }, res[0])
   end
 
   it "parses multiple lines" do
-    res = run_parser("a=b\r\nc=d")
-    assert_equal [{ "a" => "b" }, { "c" => "d" }], res
+    res = Hutils::Parser.new("a=b\r\nc=d").parse
+    assert_equal([{ "a" => "b" }, { "c" => "d" }], res.map { |e| e[0]})
   end
 
   it "parses single quoted strings" do
     res = run_parser("a='b c'")
-    assert_equal [{ "a" => "b c" }], res
+    assert_equal({ "a" => "b c" }, res[0])
   end
 
   it "parses double quoted strings" do
     res = run_parser(%{a="b c"})
-    assert_equal [{ "a" => "b c" }], res
+    assert_equal({ "a" => "b c" }, res[0])
   end
 
   it "parses a complex string" do
     res = run_parser(%{a=b c='d e' f="g h" i=j})
-    assert_equal [{ "a" => "b", "c" => "d e", "f" => "g h", "i" => "j" }], res
+    assert_equal({ "a" => "b", "c" => "d e", "f" => "g h", "i" => "j" }, res[0])
   end
 
   it "parses single terms" do
     res = run_parser("a=b c")
-    assert_equal [{ "a" => "b", "c" => true }], res
+    assert_equal({ "a" => "b", "c" => true }, res[0])
   end
 
   it "strips a timestamp from the beginning of lines" do
     res = run_parser("2014-08-21T21:33:47.766994+00:00: a=b")
-    assert_equal [{ "a" => "b" }], res
+    assert_equal({ "a" => "b" }, res[0])
+    assert_equal Time.parse("2014-08-21T21:33:47.766994+00:00"), res[1]
   end
 
   it "strips a timestamp and process from the beginning of lines" do
     res = run_parser("2014-08-21T21:30:02.929936+00:00 app[api-qcworker-1]: a=b")
-    assert_equal [{ "a" => "b" }], res
+    assert_equal({ "a" => "b" }, res[0])
+    assert_equal Time.parse("2014-08-21T21:30:02.929936+00:00"), res[1]
   end
 
   def run_parser(str)
-    Hutils::Parser.new(str).parse
+    # just return the first line
+    Hutils::Parser.new(str).parse[0]
   end
 end
 
