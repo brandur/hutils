@@ -85,6 +85,8 @@ module Hutils::Ltap
         expects: [200, 204],
         body: URI.encode_www_form({
           action: "finalize",
+          # tell Splunk to give us all results
+          count: 0,
           output_mode: "csv"
         })
       )
