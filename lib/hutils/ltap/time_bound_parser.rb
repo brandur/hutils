@@ -1,4 +1,10 @@
 module Hutils::Ltap
+  # A parser designed to support the same style of relative time that Splunk
+  # does, but note that absolute dates and "snap to" times are not supported.
+  #
+  # See here for more information on this format:
+  #
+  #      http://docs.splunk.com/Documentation/Splunk/6.1.3/SearchReference/SearchTimeModifiers
   class TimeBoundParser
     def parse(str, from: Time.now.getutc)
       if str =~ /^([+\-])([0-9]?)([a-z]+)$/
