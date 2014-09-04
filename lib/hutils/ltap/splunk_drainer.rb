@@ -33,7 +33,17 @@ module Hutils::Ltap
         end
       end
 
-      get_job_results
+      messages = []
+      loop do
+        new_messages = get_job_results(messages.count)
+        puts "new message count: #{new_messages.count}"
+        puts "equal" if messages[0, 100] == new_messages
+        break if new_messages.count < 1
+        messages += new_messages
+      end
+
+      # give oldest first by default
+      messages.reverse
     end
 
     def cancel_job
@@ -56,6 +66,7 @@ module Hutils::Ltap
         expects: 201,
         body: URI.encode_www_form({
           earliest_time: @earliest.iso8601,
+          max_count: 10000,
           output_mode: "json",
           search: "search #{query}"
         })
@@ -81,7 +92,7 @@ module Hutils::Ltap
       debug("finalized")
     end
 
-    def get_job_results
+    def get_job_results(offset)
       # get results as CSV because the JSON version just mixes everything together
       # into a giant difficult-to-use blob
       resp = @api.get(
@@ -90,8 +101,8 @@ module Hutils::Ltap
         expects: [200, 204],
         body: URI.encode_www_form({
           action: "finalize",
-          # tell Splunk to give us all results
-          count: 0,
+          #count: 900,
+          offset: offset,
           output_mode: "csv"
         })
       )
@@ -104,7 +115,7 @@ module Hutils::Ltap
       time_field = rows[0].index("_time") || raise("no _time field detected in Splunk response")
 
       # skip the first line as its used for CSV headers
-      rows[1..-1].
+      messages = rows[1..-1].
         map { |l| [l[raw_field], l[time_field]] }.
         # 2014-08-15T19:01:15.476590+00:00 54.197.117.24 local0.notice
         # api-web-1[23399]: - api.108080@heroku.com ...
@@ -112,9 +123,10 @@ module Hutils::Ltap
         map { |l, t| [l.strip, t] }.
         # format timestamps consistently (+00:00 --> Z)
         map { |l, t| [l, Time.parse(t).getutc.iso8601] }.
-        map { |l, t| @timestamps ? "#{t}: #{l}" : l }.
-        # results come in from newest to oldest; flip that
-        reverse
+        map { |l, t| @timestamps ? "#{t}: #{l}" : l }
+
+      debug("fetch results offset: #{offset}")
+      messages
     end
 
     def job_finished?
@@ -126,8 +138,10 @@ module Hutils::Ltap
         })
       )
       # Splunk may not be winning any awards for cleanest API anytime soon
-      state = JSON.parse(resp.body)["entry"][0]["content"]["dispatchState"]
-      debug("state: #{state}")
+      data = JSON.parse(resp.body)["entry"][0]["content"]
+      state = data["dispatchState"]
+      debug("result_count: #{data["resultCount"]} run_duration: " +
+        "#{data["runDuration"]} state: #{state} ttl: #{data["ttl"]}")
       state == "DONE"
     end
   end
