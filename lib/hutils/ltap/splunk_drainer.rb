@@ -140,8 +140,10 @@ module Hutils::Ltap
       # Splunk may not be winning any awards for cleanest API anytime soon
       data = JSON.parse(resp.body)["entry"][0]["content"]
       state = data["dispatchState"]
-      debug("result_count: #{data["resultCount"]} run_duration: " +
-        "#{data["runDuration"]} state: #{state} ttl: #{data["ttl"]}")
+      count, duration, state, ttl =
+        data.values_at("resultCount", "runDuration", "dispatchState", "ttl")
+      debug("result_count: #{count} run_duration: #{duration} " +
+        "state: #{state} ttl: #{ttl}")
       state == "DONE"
     end
   end
