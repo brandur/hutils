@@ -36,10 +36,8 @@ module Hutils::Ltap
       messages = []
       loop do
         new_messages = get_job_results(messages.count)
-        puts "new message count: #{new_messages.count}"
-        puts "equal" if messages[0, 100] == new_messages
-        break if new_messages.count < 1
         messages += new_messages
+        break if new_messages.count < MAX_RESULTS_PAGE
       end
 
       # give oldest first by default
@@ -59,6 +57,8 @@ module Hutils::Ltap
     end
 
     private
+
+    MAX_RESULTS_PAGE = 100
 
     def create_job(query)
       resp = @api.post(
@@ -99,12 +99,12 @@ module Hutils::Ltap
         path: "/servicesNS/#{@user}/search/search/jobs/#{@job_id}/results",
         # 204 if no results available
         expects: [200, 204],
-        body: URI.encode_www_form({
+        query: {
           action: "finalize",
-          #count: 900,
+          count: MAX_RESULTS_PAGE,
           offset: offset,
           output_mode: "csv"
-        })
+        }
       )
 
       return [] if resp.status == 204
