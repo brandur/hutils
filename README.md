@@ -8,6 +8,8 @@ A small collection of utilies for [logfmt](http://brandur.org/logfmt) processing
 gem install hutils
 ```
 
+Requires Ruby 2.1.0 or later.
+
 ## Utilities
 
 ### lcut
