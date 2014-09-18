@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name        = "hutils"
-  gem.version     = "0.2.1"
+  gem.version     = "0.2.2"
 
   gem.author      = "Brandur"
   gem.email       = "brandur@mutelight.org"
