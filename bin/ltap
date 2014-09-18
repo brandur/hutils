@@ -19,11 +19,11 @@ opts = OptionParser.new do |opts|
   opts.on("-e", "--earliest [TIME]", "Bound for earliest message") { |e|
     conf.earliest = e
   }
-  opts.on("-k", "--key [KEY]", "Service API key") { |t| conf.timeout = t }
+  opts.on("-k", "--key [KEY]", "Service API key") { |t| conf.key = t }
   opts.on("-p", "--profile [PROFILE]", "Conf profile") { |p| conf.profile = p }
   opts.on("-t", "--timeout [TIMEOUT]", "Job timeout") { |t| conf.timeout = t }
   opts.on("-s", "--timestamps", "Output timestamps") { |t| conf.timestamps = t }
-  opts.on("-y", "--type [TYPE]", "Service type") { |t| conf.timeout = t }
+  opts.on("-y", "--type [TYPE]", "Service type") { |t| conf.type = t }
   opts.on("-u", "--url [URL]", "Service API URL") { |u| conf.url = u }
   opts.on("-v", "--verbose", "Verbose mode") { |v| conf.verbose = v }
 end
