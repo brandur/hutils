@@ -17,17 +17,19 @@ module Hutils
         if time
           @out.print "#{colorize(:cyan, time.iso8601)} "
         end
-        message.to_a.sort_by { |k, v| k }.map { |k, v|
-          pair_to_string(k, v)
-        }.each_with_index { |display, i|
-          if @compact
-            @out.print(indent) if i == 0
-            @out.print("#{display} ")
-          else
-            marker = i == 0 ? "+ " : "  "
-            @out.puts "#{indent}#{marker}#{display}"
-          end
-        }
+        message.to_a.reject { |k, v| k == nil }.
+          sort_by { |k, v| k }.
+          map { |k, v|
+            pair_to_string(k, v)
+          }.each_with_index { |display, i|
+            if @compact
+              @out.print(indent) if i == 0
+              @out.print("#{display} ")
+            else
+              marker = i == 0 ? "+ " : "  "
+              @out.puts "#{indent}#{marker}#{display}"
+            end
+          }
         @out.puts ""
       end
 
