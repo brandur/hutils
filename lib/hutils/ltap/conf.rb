@@ -24,16 +24,21 @@ module Hutils::Ltap
     end
 
     def load_section(name)
-      if section = @ini && @ini[name]
-        load_value(section, :earliest)
-        load_value(section, :key)
-        load_value(section, :profile)
-        load_value(section, :timeout)
-        load_value(section, :timestamps)
-        load_value(section, :type)
-        load_value(section, :url)
-        load_value(section, :verbose)
-      end
+      return unless @ini
+      raise SectionNotFound unless @ini.has_section?(name)
+
+      section = @ini[name]
+      load_value(section, :earliest)
+      load_value(section, :key)
+      load_value(section, :profile)
+      load_value(section, :timeout)
+      load_value(section, :timestamps)
+      load_value(section, :type)
+      load_value(section, :url)
+      load_value(section, :verbose)
+    end
+
+    class SectionNotFound < StandardError
     end
 
     private
