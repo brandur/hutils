@@ -54,6 +54,8 @@ if !(earliest = parser.parse(conf.earliest, from: Time.now.getutc))
 end
 
 drainer = case conf.type
+when "lvat"
+  Hutils::Ltap::LvatDrainer
 when "papertrail"
   Hutils::Ltap::PaperTrailDrainer
 when "splunk"
@@ -62,15 +64,19 @@ else
   abort("Unknown type: #{conf.type}")
 end
 
-drainer = drainer.new(
-  earliest: earliest,
-  key: conf.key,
-  query: ARGV.first,
-  timeout: conf.timeout,
-  timestamps: conf.timestamps,
-  url: conf.url,
-  verbose: conf.verbose
-)
+begin
+  drainer = drainer.new(
+    earliest: earliest,
+    key: conf.key,
+    query: ARGV.first,
+    timeout: conf.timeout,
+    timestamps: conf.timestamps,
+    url: conf.url,
+    verbose: conf.verbose
+  )
+rescue ArgumentError
+  abort($!.message)
+end
 
 thread = Thread.start do
   $stdout.puts drainer.run
