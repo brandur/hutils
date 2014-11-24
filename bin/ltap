@@ -30,8 +30,12 @@ end
 opts.parse!
 
 # load a profile from ~/.ltap if one was specified
-if conf.profile
-  conf.load_section(conf.profile)
+begin
+  if conf.profile
+    conf.load_section(conf.profile)
+  end
+rescue Hutils::Ltap::Conf::SectionNotFound
+  abort("No such section: #{conf.profile}")
 end
 
 unless conf.type
