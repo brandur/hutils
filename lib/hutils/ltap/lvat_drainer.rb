@@ -1,4 +1,5 @@
 require "json"
+require "zlib"
 
 module Hutils::Ltap
   class LvatDrainer
@@ -9,7 +10,12 @@ module Hutils::Ltap
         raise ArgumentError, "lvat does not supported `timestamps` option"
       end
 
-      @api = Excon.new(url, read_timeout: timeout)
+      @api = Excon.new(url,
+        headers: {
+          "Accept-Encoding" => "gzip"
+        },
+        read_timeout: timeout
+      )
     end
 
     def run
@@ -22,7 +28,15 @@ module Hutils::Ltap
 
       return [] if resp.status == 404
 
-      resp.body.split("\n")
+      encoding = resp.headers["Content-Encoding"]
+      str = if encoding && encoding.include?("gzip")
+        reader = Zlib::GzipReader.new(StringIO.new(resp.body))
+        reader.read
+      else
+        resp.body
+      end
+
+      str.split("\n")
     end
   end
 end
