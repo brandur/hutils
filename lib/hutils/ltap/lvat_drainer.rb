@@ -22,7 +22,7 @@ module Hutils::Ltap
 
       return [] if resp.status == 404
 
-      JSON.parse(resp.body)
+      resp.body.split("\n")
     end
   end
 end
