@@ -22,10 +22,8 @@ opts = OptionParser.new do |opts|
   opts.banner = "Usage: lviz [options] <file> ..."
   opts.on("--compact", "Compact display") { |c| compact = c }
   opts.on("-h", "--help", "Show this help string") { |h|
-    if h
-      puts(opts.help)
-      exit(0)
-    end
+    puts(opts.help)
+    exit(0)
   }
   opts.on("--highlights", "Keys to highlight (comma separated)") { |h|
     highlights = h.split(",") rescue []
