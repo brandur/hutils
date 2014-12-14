@@ -25,11 +25,11 @@ opts = OptionParser.new do |opts|
     puts(opts.help)
     exit(0)
   }
-  opts.on("--highlights", "Keys to highlight (comma separated)") { |h|
-    highlights = h.split(",") rescue []
+  opts.on("--highlights ...", Array, "Keys to highlight (comma separated)") { |h|
+    highlights = h
   }
-  opts.on("--ignore", "Keys to ignore (comma separated)") { |i|
-    ignore = i.split(",") rescue []
+  opts.on("--ignore ...", Array, "Keys to ignore (comma separated)") { |i|
+    ignore = i
   }
   opts.on("-i", "--interactive", "Interactive mode") { |i| interactive = i }
   opts.on("--no-color", "Disable colors") { |c| colors = false }
