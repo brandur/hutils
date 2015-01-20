@@ -10,7 +10,7 @@ file = nil
 verbose = false
 
 opts = OptionParser.new do |opts|
-  opts.banner = "Usage: lsel [options] <fields>"
+  opts.banner = "Usage: lcut [options] <fields>"
   opts.on("-d", "--delimiter [DELIMITER]", "Delimiter separating output") { |d|
     delimiter = d
   }
