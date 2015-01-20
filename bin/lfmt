@@ -8,7 +8,7 @@ colors = $stdout.tty?
 highlights = %w(endpoint path route_signature user user_id)
 
 opts = OptionParser.new do |opts|
-  opts.banner = "Usage: lsel [options] <fields>"
+  opts.banner = "Usage: lfmt [options] <fields>"
   opts.on("-d", "--delimiter [DELIMITER]", "Delimiter separating output") { |d|
     delimiter = d
   }
