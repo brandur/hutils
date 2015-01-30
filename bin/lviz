@@ -22,16 +22,14 @@ opts = OptionParser.new do |opts|
   opts.banner = "Usage: lviz [options] <file> ..."
   opts.on("--compact", "Compact display") { |c| compact = c }
   opts.on("-h", "--help", "Show this help string") { |h|
-    if h
-      puts(opts.help)
-      exit(0)
-    end
+    puts(opts.help)
+    exit(0)
   }
-  opts.on("--highlights", "Keys to highlight (comma separated)") { |h|
-    highlights = h.split(",") rescue []
+  opts.on("--highlights ...", Array, "Keys to highlight (comma separated)") { |h|
+    highlights = h
   }
-  opts.on("--ignore", "Keys to ignore (comma separated)") { |i|
-    ignore = i.split(",") rescue []
+  opts.on("--ignore ...", Array, "Keys to ignore (comma separated)") { |i|
+    ignore = i
   }
   opts.on("-i", "--interactive", "Interactive mode") { |i| interactive = i }
   opts.on("--no-color", "Disable colors") { |c| colors = false }
